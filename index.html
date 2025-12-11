@@ -266,7 +266,7 @@
 
   <div class="footer-hint">
     Fortschritt &amp; Notizen werden lokal im Browser gespeichert (keine Cloud, keine Anmeldung).<br>
-    Bilder: einfach in <code>img/</code> legen, z.&nbsp;B. <code>img/fahrtenschreiber_vorfahrtantritt.jpg</code>, und bei der Frage <code>image</code> + <code>imageLabel</code> eintragen.
+    Bilder: einfach in <code>img/</code> legen und in der passenden Frage <code>image</code> eintragen.
   </div>
 </main>
 
@@ -285,8 +285,7 @@ const QUESTIONS = [
 • Gerät auf Arbeitszeit stellen
 
 Erst alles korrekt einstellen – sonst drohen Bußgelder.`,
-    image: "img/fahrtenschreiber_vorfahrtantritt.jpg",
-    imageLabel: "Digitaler Fahrtenschreiber – Aufgaben vor Fahrtantritt"
+    image: "img/fahrtenschreiber_vorfahrtantritt.jpg"
   },
   {
     id: "K1F2",
@@ -305,7 +304,8 @@ Bremsflüssigkeit ist ein PKW-Thema – LKW bremst mit Luft.`
 • Punkte 15.1, 15.2 und 15.3 müssen übereinstimmen
 • Beispiel: 385/70 R22.5
 
-Daten müssen exakt übereinstimmen – sonst erlischt die Betriebserlaubnis.`
+Daten müssen exakt übereinstimmen – sonst erlischt die Betriebserlaubnis.`,
+    image: "img/reifengroesse_k1f3.jpg"
   },
   {
     id: "K1F4",
@@ -325,7 +325,8 @@ Alles hinten: hell, sauber, heil.`
 • Kühlleitungen: keine Risse, nicht porös, Schellen fest
 • Kühlmittelstand: es erscheint eine Warnmeldung, wenn der Stand zu gering ist – Auffüllen nur bei kaltem Motor
 
-Nie bei heißem Motor öffnen – Verbrühungsgefahr!`
+Nie bei heißem Motor öffnen – Verbrühungsgefahr!`,
+    image: "img/kuehler_kuehlleitungen_lkw.jpg"
   },
   {
     id: "K1F6",
@@ -360,8 +361,7 @@ Tasten sicher beherrschen = korrekte Bedienung.`
 • Motor starten: STOP-Warnung leuchtet → Warneinrichtung funktioniert
 
 Warnung muss deutlich erscheinen – sonst defekt.`,
-    image: "img/vorratsdruck_warnung_lkw.jpg",
-    imageLabel: "Vorratsdruck zu gering – Info- und STOP-Warnung im Cockpit"
+    image: "img/vorratsdruck_warnung_lkw.jpg"
   },
   {
     id: "K2F3",
@@ -371,7 +371,8 @@ Warnung muss deutlich erscheinen – sonst defekt.`,
 • Werte auf dem Reifen dürfen höher, aber niemals niedriger sein
 • Bei Doppelachse: zwei Tragfähigkeiten, z. B. 154/150 → die zweite Zahl gilt
 
-Immer den niedrigeren Wert bei Doppelbereifung beachten – der ist gültig.`
+Immer den niedrigeren Wert bei Doppelbereifung beachten – der ist gültig.`,
+    image: "img/tragfaehigkeit_geschwindigkeit_k2f3.jpg"
   },
   {
     id: "K2F4",
@@ -392,7 +393,8 @@ Einmal um den LKW gehen – nichts übersehen.`
 • Kühlleitungen: keine Risse, nicht porös, Schellen fest
 • Kühlmittelstand: es erscheint eine Warnmeldung, wenn der Stand zu gering ist – Auffüllen nur bei kaltem Motor
 
-Nie bei heißem Motor öffnen – Verbrühungsgefahr!`
+Nie bei heißem Motor öffnen – Verbrühungsgefahr!`,
+    image: "img/kuehler_kuehlleitungen_lkw.jpg"
   },
   {
     id: "K2F6",
@@ -404,8 +406,7 @@ Nie bei heißem Motor öffnen – Verbrühungsgefahr!`
 • Auf die Eiskanten achten – dürfen nicht beschädigt sein
 
 Nur vollständige, passende Keile sichern richtig.`,
-    image: "img/unterlegkeile_lkw.jpg",
-    imageLabel: "Unterlegkeile am LKW – eingelegt in der Halterung"
+    image: "img/unterlegkeile_lkw.jpg"
   },
 
   // Karte 3
@@ -445,7 +446,7 @@ Lose Radmuttern = Radverlustgefahr!`
     id: "K3F4",
     card: 3,
     title: "Frage 4: Standlicht, Abblendlicht, Fernlicht, Umrissleuchten vorne, Funktion prüfen.",
-    answer: `• Fahrlehrer schaltet Licht ein
+    answer: `• Fahrlehrer Licht einschaltet lassen
 • Fahrschüler geht vor das Fahrzeug
 • Standlicht, Abblendlicht, Fernlicht prüfen
 • Umrissleuchten vorne kontrollieren
@@ -468,11 +469,10 @@ Falscher Ölstand = Motorschaden.`
     title: "Frage 6: Verbandskasten (Unterbringung).",
     answer: `• Seitenfach öffnen, Verbandskasten entnehmen
 • Richtige DIN-Norm, Ablaufdatum, Vollständigkeit prüfen
-• Verbandkasten nicht beschädigt
+• Verbandskasten nicht beschädigt
 
 Abgelaufen oder unvollständig → Bußgeld + Risiko.`,
-    image: "img/verbandskasten_k3f6.jpg",
-    imageLabel: "Verbandskasten nach DIN 13164:2022 – Vorder- und Rückseite"
+    image: "img/verbandskasten_k3f6.jpg"
   },
 
   // Karte 4
@@ -653,8 +653,7 @@ Druck prüfen, Warnleuchte aus – dann fahrbereit.`
 • Beide Sicherungen müssen fest sein
 
 Immer an die doppelte Sicherung denken.`,
-    image: "img/reserverad_sicherung_k6f3.jpg",
-    imageLabel: "Reserveradsicherung – Seil der Hubeinrichtung und Verschraubung"
+    image: "img/reserverad_sicherung_k6f3.jpg"
   },
   {
     id: "K6F4",
@@ -664,7 +663,8 @@ Immer an die doppelte Sicherung denken.`,
 • Kontrollsysteme nennen: Kraftstoffanzeige, Druckmesser/Manometer
 • Wenn Prüfer eine unbekannte Leuchte zeigt: Hinweis auf Betriebsanleitung
 
-Mindestens zwei Beispiele nennen – das reicht dem Prüfer.`
+Mindestens zwei Beispiele nennen – das reicht dem Prüfer.`,
+    image: "img/kontrolllampen_cockpit_k6f4_k10f4.jpg"
   },
   {
     id: "K6F5",
@@ -688,8 +688,7 @@ Nur den Bordcomputer nutzen – Fahrerhaus in der Prüfung nicht kippen.`
 • Typenschild an der Anhängerkupplung vorhanden
 
 Kupplung immer auf sicheren Sitz prüfen.`,
-    image: "img/anhaengerkupplung_k6f6.jpg",
-    imageLabel: "Anhängekupplung mit Fangmaul und Typenschild"
+    image: "img/anhaengerkupplung_k6f6.jpg"
   },
 
   // Karte 7
@@ -704,8 +703,7 @@ Kupplung immer auf sicheren Sitz prüfen.`,
 • Gerät auf Arbeitszeit stellen
 
 Erst alles korrekt einstellen – sonst drohen Bußgelder.`,
-    image: "img/fahrtenschreiber_vorfahrtantritt.jpg",
-    imageLabel: "Digitaler Fahrtenschreiber – Aufgaben vor Fahrtantritt"
+    image: "img/fahrtenschreiber_vorfahrtantritt.jpg"
   },
   {
     id: "K7F2",
@@ -715,8 +713,7 @@ Erst alles korrekt einstellen – sonst drohen Bußgelder.`,
 • Motor starten: STOP-Warnung leuchtet → Warneinrichtung funktioniert
 
 Warnung muss deutlich erscheinen – sonst defekt.`,
-    image: "img/vorratsdruck_warnung_lkw.jpg",
-    imageLabel: "Vorratsdruck zu gering – Info- und STOP-Warnung im Cockpit"
+    image: "img/vorratsdruck_warnung_lkw.jpg"
   },
   {
     id: "K7F3",
@@ -774,7 +771,7 @@ Erst Zustand, dann Sicherungsarten nennen.`
 • „OK“: Menü öffnen/bestätigen
 • „Fahrer 1“-Taste: Tätigkeiten einstellen / Karte auswerfen
 
-Tasten sicher beherrschen = korrekte Bedienung.`
+Tasten sicher beherrschen = korrekte Eintragungen.`
   },
   {
     id: "K8F2",
@@ -938,7 +935,8 @@ Stoßdämpfer sind wichtig – werden oft vernachlässigt.`
 • Kontrollsysteme: Kraftstoffanzeige, Druckmesser/Manometer
 • Wenn Prüfer eine unbekannte Leuchte zeigt: Hinweis auf Betriebsanleitung
 
-Mindestens zwei Beispiele nennen – das reicht dem Prüfer.`
+Mindestens zwei Beispiele nennen – das reicht dem Prüfer.`,
+    image: "img/kontrolllampen_cockpit_k6f4_k10f4.jpg"
   },
   {
     id: "K10F5",
@@ -959,8 +957,7 @@ Leuchte an = Filter dicht.`
 • Auf die Eiskanten achten – dürfen nicht beschädigt sein
 
 Nur vollständige, passende Keile sichern richtig.`,
-    image: "img/unterlegkeile_lkw.jpg",
-    imageLabel: "Unterlegkeile am LKW – eingelegt in der Halterung"
+    image: "img/unterlegkeile_lkw.jpg"
   }
 ];
 
@@ -1032,15 +1029,8 @@ function addImageSupport(cardElement, q) {
 
   const img = document.createElement("img");
   img.src = q.image;
-  img.alt = q.imageLabel || "Abbildung zur Frage";
+  img.alt = "Abbildung zur Frage";
   imgWrapper.appendChild(img);
-
-  if (q.imageLabel) {
-    const cap = document.createElement("div");
-    cap.className = "image-caption";
-    cap.textContent = q.imageLabel;
-    imgWrapper.appendChild(cap);
-  }
 
   cardElement.appendChild(imgWrapper);
   return imgWrapper;
