@@ -5,6 +5,7 @@
   <title>Abfahrtskontrolle LKW – Lerntrainer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+
     :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #f3f4f6;
@@ -227,19 +228,39 @@
         font-size: 1.2rem;
       }
     }
-  </style>
+  
+  
+    .lang-switch{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .lang-switch button{
+      padding:8px 12px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      cursor:pointer;
+    }
+    .lang-switch button.active{
+      outline:2px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.14);
+    }
+
+</style>
 </head>
 <body>
 <header>
-  <h1>Abfahrtskontrolle LKW – Lerntrainer</h1>
-  <p>Lernkarten, Quiz &amp; Prüfungsmodus (mit optionalen Bildern pro Frage)</p>
+  <h1 id="appTitle">Abfahrtskontrolle LKW – Lerntrainer</h1>
+  <p id="appSubtitle">Lernkarten, Quiz &amp; Prüfungsmodus (mit optionalen Bildern pro Frage)</p>
 </header>
 <main>
   <div class="controls">
     <label>
-      Karte:
+      <span id="labelCard">Karte:</span>
       <select id="cardFilter">
-        <option value="all">Alle Karten</option>
+        <option value="all" id="optAllCards">Alle Karten</option>
       </select>
     </label>
 
@@ -256,6 +277,11 @@
     <div class="progress-text" id="progressText">Fortschritt: 0 / 0 (0%)</div>
 
     <button id="resetAll" class="danger">Reset: Fortschritt &amp; Notizen löschen</button>
+    <div class="lang-switch" role="group" aria-label="Language">
+  <button id="langDeBtn" type="button">Deutsch</button>
+  <button id="langEnBtn" type="button">English</button>
+  <button id="langArBtn" type="button">العربية</button>
+</div>
 
     <div class="mode-info" id="modeInfo">
       Modus: <strong>Lernkarten</strong> – blättere durch alle Fragen, zeige dir die Antwort an und bewerte dich.
@@ -264,14 +290,13 @@
 
   <div class="card-list" id="cardList"></div>
 
-  <div class="footer-hint">
+  <div class="footer-hint" id="footerHint">
     Fortschritt &amp; Notizen werden lokal im Browser gespeichert (keine Cloud, keine Anmeldung).<br>
-    Bilder: einfach in <code>img/</code> legen und in der passenden Frage <code>image</code> eintragen.
+    Bilder: einfach in <code>img/</code> legen, z.&nbsp;B. <code>img/fahrtenschreiber_vorfahrtantritt.jpg</code>, und bei der Frage <code>image</code> + <code>imageLabel</code> eintragen.
   </div>
 </main>
 
 <script>
-// Fragenkatalog – mit Bild-Unterstützung
 const QUESTIONS = [
   // Karte 1
   {
@@ -285,7 +310,8 @@ const QUESTIONS = [
 • Gerät auf Arbeitszeit stellen
 
 Erst alles korrekt einstellen – sonst drohen Bußgelder.`,
-    image: "img/fahrtenschreiber_vorfahrtantritt.jpg"
+    image: "img/fahrtenschreiber_vorfahrtantritt.jpg",
+    imageLabel: "Digitaler Fahrtenschreiber – Aufgaben vor Fahrtantritt"
   },
   {
     id: "K1F2",
@@ -304,8 +330,7 @@ Bremsflüssigkeit ist ein PKW-Thema – LKW bremst mit Luft.`
 • Punkte 15.1, 15.2 und 15.3 müssen übereinstimmen
 • Beispiel: 385/70 R22.5
 
-Daten müssen exakt übereinstimmen – sonst erlischt die Betriebserlaubnis.`,
-    image: "img/reifengroesse_k1f3.jpg"
+Daten müssen exakt übereinstimmen – sonst erlischt die Betriebserlaubnis.`
   },
   {
     id: "K1F4",
@@ -325,8 +350,7 @@ Alles hinten: hell, sauber, heil.`
 • Kühlleitungen: keine Risse, nicht porös, Schellen fest
 • Kühlmittelstand: es erscheint eine Warnmeldung, wenn der Stand zu gering ist – Auffüllen nur bei kaltem Motor
 
-Nie bei heißem Motor öffnen – Verbrühungsgefahr!`,
-    image: "img/kuehler_kuehlleitungen_lkw.jpg"
+Nie bei heißem Motor öffnen – Verbrühungsgefahr!`
   },
   {
     id: "K1F6",
@@ -361,7 +385,8 @@ Tasten sicher beherrschen = korrekte Bedienung.`
 • Motor starten: STOP-Warnung leuchtet → Warneinrichtung funktioniert
 
 Warnung muss deutlich erscheinen – sonst defekt.`,
-    image: "img/vorratsdruck_warnung_lkw.jpg"
+    image: "img/vorratsdruck_warnung_lkw.jpg",
+    imageLabel: "Vorratsdruck zu gering – Info- und STOP-Warnung im Cockpit"
   },
   {
     id: "K2F3",
@@ -371,8 +396,7 @@ Warnung muss deutlich erscheinen – sonst defekt.`,
 • Werte auf dem Reifen dürfen höher, aber niemals niedriger sein
 • Bei Doppelachse: zwei Tragfähigkeiten, z. B. 154/150 → die zweite Zahl gilt
 
-Immer den niedrigeren Wert bei Doppelbereifung beachten – der ist gültig.`,
-    image: "img/tragfaehigkeit_geschwindigkeit_k2f3.jpg"
+Immer den niedrigeren Wert bei Doppelbereifung beachten – der ist gültig.`
   },
   {
     id: "K2F4",
@@ -393,8 +417,7 @@ Einmal um den LKW gehen – nichts übersehen.`
 • Kühlleitungen: keine Risse, nicht porös, Schellen fest
 • Kühlmittelstand: es erscheint eine Warnmeldung, wenn der Stand zu gering ist – Auffüllen nur bei kaltem Motor
 
-Nie bei heißem Motor öffnen – Verbrühungsgefahr!`,
-    image: "img/kuehler_kuehlleitungen_lkw.jpg"
+Nie bei heißem Motor öffnen – Verbrühungsgefahr!`
   },
   {
     id: "K2F6",
@@ -406,7 +429,8 @@ Nie bei heißem Motor öffnen – Verbrühungsgefahr!`,
 • Auf die Eiskanten achten – dürfen nicht beschädigt sein
 
 Nur vollständige, passende Keile sichern richtig.`,
-    image: "img/unterlegkeile_lkw.jpg"
+    image: "img/unterlegkeile_lkw.jpg",
+    imageLabel: "Unterlegkeile am LKW – eingelegt in der Halterung"
   },
 
   // Karte 3
@@ -446,7 +470,7 @@ Lose Radmuttern = Radverlustgefahr!`
     id: "K3F4",
     card: 3,
     title: "Frage 4: Standlicht, Abblendlicht, Fernlicht, Umrissleuchten vorne, Funktion prüfen.",
-    answer: `• Fahrlehrer Licht einschaltet lassen
+    answer: `• Fahrlehrer schaltet Licht ein
 • Fahrschüler geht vor das Fahrzeug
 • Standlicht, Abblendlicht, Fernlicht prüfen
 • Umrissleuchten vorne kontrollieren
@@ -469,10 +493,11 @@ Falscher Ölstand = Motorschaden.`
     title: "Frage 6: Verbandskasten (Unterbringung).",
     answer: `• Seitenfach öffnen, Verbandskasten entnehmen
 • Richtige DIN-Norm, Ablaufdatum, Vollständigkeit prüfen
-• Verbandskasten nicht beschädigt
+• Verbandkasten nicht beschädigt
 
 Abgelaufen oder unvollständig → Bußgeld + Risiko.`,
-    image: "img/verbandskasten_k3f6.jpg"
+    image: "img/verbandskasten_k3f6.jpg",
+    imageLabel: "Verbandskasten nach DIN 13164:2022 – Vorder- und Rückseite"
   },
 
   // Karte 4
@@ -653,7 +678,8 @@ Druck prüfen, Warnleuchte aus – dann fahrbereit.`
 • Beide Sicherungen müssen fest sein
 
 Immer an die doppelte Sicherung denken.`,
-    image: "img/reserverad_sicherung_k6f3.jpg"
+    image: "img/reserverad_sicherung_k6f3.jpg",
+    imageLabel: "Reserveradsicherung – Seil der Hubeinrichtung und Verschraubung"
   },
   {
     id: "K6F4",
@@ -663,8 +689,7 @@ Immer an die doppelte Sicherung denken.`,
 • Kontrollsysteme nennen: Kraftstoffanzeige, Druckmesser/Manometer
 • Wenn Prüfer eine unbekannte Leuchte zeigt: Hinweis auf Betriebsanleitung
 
-Mindestens zwei Beispiele nennen – das reicht dem Prüfer.`,
-    image: "img/kontrolllampen_cockpit_k6f4_k10f4.jpg"
+Mindestens zwei Beispiele nennen – das reicht dem Prüfer.`
   },
   {
     id: "K6F5",
@@ -688,7 +713,8 @@ Nur den Bordcomputer nutzen – Fahrerhaus in der Prüfung nicht kippen.`
 • Typenschild an der Anhängerkupplung vorhanden
 
 Kupplung immer auf sicheren Sitz prüfen.`,
-    image: "img/anhaengerkupplung_k6f6.jpg"
+    image: "img/anhaengerkupplung_k6f6.jpg",
+    imageLabel: "Anhängekupplung mit Fangmaul und Typenschild"
   },
 
   // Karte 7
@@ -703,7 +729,8 @@ Kupplung immer auf sicheren Sitz prüfen.`,
 • Gerät auf Arbeitszeit stellen
 
 Erst alles korrekt einstellen – sonst drohen Bußgelder.`,
-    image: "img/fahrtenschreiber_vorfahrtantritt.jpg"
+    image: "img/fahrtenschreiber_vorfahrtantritt.jpg",
+    imageLabel: "Digitaler Fahrtenschreiber – Aufgaben vor Fahrtantritt"
   },
   {
     id: "K7F2",
@@ -713,7 +740,8 @@ Erst alles korrekt einstellen – sonst drohen Bußgelder.`,
 • Motor starten: STOP-Warnung leuchtet → Warneinrichtung funktioniert
 
 Warnung muss deutlich erscheinen – sonst defekt.`,
-    image: "img/vorratsdruck_warnung_lkw.jpg"
+    image: "img/vorratsdruck_warnung_lkw.jpg",
+    imageLabel: "Vorratsdruck zu gering – Info- und STOP-Warnung im Cockpit"
   },
   {
     id: "K7F3",
@@ -771,7 +799,7 @@ Erst Zustand, dann Sicherungsarten nennen.`
 • „OK“: Menü öffnen/bestätigen
 • „Fahrer 1“-Taste: Tätigkeiten einstellen / Karte auswerfen
 
-Tasten sicher beherrschen = korrekte Eintragungen.`
+Tasten sicher beherrschen = korrekte Bedienung.`
   },
   {
     id: "K8F2",
@@ -935,8 +963,7 @@ Stoßdämpfer sind wichtig – werden oft vernachlässigt.`
 • Kontrollsysteme: Kraftstoffanzeige, Druckmesser/Manometer
 • Wenn Prüfer eine unbekannte Leuchte zeigt: Hinweis auf Betriebsanleitung
 
-Mindestens zwei Beispiele nennen – das reicht dem Prüfer.`,
-    image: "img/kontrolllampen_cockpit_k6f4_k10f4.jpg"
+Mindestens zwei Beispiele nennen – das reicht dem Prüfer.`
   },
   {
     id: "K10F5",
@@ -957,12 +984,705 @@ Leuchte an = Filter dicht.`
 • Auf die Eiskanten achten – dürfen nicht beschädigt sein
 
 Nur vollständige, passende Keile sichern richtig.`,
-    image: "img/unterlegkeile_lkw.jpg"
+    image: "img/unterlegkeile_lkw.jpg",
+    imageLabel: "Unterlegkeile am LKW – eingelegt in der Halterung"
   }
 ];
 
+const QUESTIONS_EN = {
+  "K1F1": {
+    "title": "Question 1: Tasks on the tachograph before starting the trip*",
+    "answer": "• Switch ignition on, insert driver card\n• Check UTC time and name\n• Make a manual entry (previous activities)\n• Enter start country: Germany\n• Set device to “work”\n\nSet everything correctly first – otherwise fines may apply.",
+    "imageLabel": "Digital tachograph – tasks before starting the trip"
+  },
+  "K1F2": {
+    "title": "Question 2: Check the brake fluid level.",
+    "answer": "• On a truck there is no brake fluid: the system is an air brake\n• Instead: check reservoir pressure and warning indicators on the dashboard\n\nBrake fluid is a car topic – trucks brake with air."
+  },
+  "K1F3": {
+    "title": "Question 3: Check tire size using the registration certificate part I (vehicle registration).",
+    "answer": "• Compare the tire size on the tire with the entry in the registration\n• Items 15.1, 15.2 and 15.3 must match\n• Example: 385/70 R22.5\n\nData must match exactly – otherwise the operating permit may be invalid."
+  },
+  "K1F4": {
+    "title": "Question 4: Check brake lights, license plate light, and reflectors.",
+    "answer": "• Have the instructor switch on the lights and press the brake\n• Check license plate illumination\n• Reflectors: check cleanliness and damage\n\nEverything at the rear: bright, clean, intact."
+  },
+  "K1F5": {
+    "title": "Question 5: Visual check of radiator and coolant lines; check coolant level.",
+    "answer": "• Radiator: no leaks, no blockages (e.g., leaves, bags), fins not damaged/bent\n• Coolant hoses/lines: no cracks, not porous, clamps tight\n• Coolant level: warning message appears if level is too low – top up only with a cold engine\n\nNever open when hot – risk of scalding!"
+  },
+  "K1F6": {
+    "title": "Question 6: Warning beacon (function), warning triangle, high-visibility vest (present).",
+    "answer": "• Warning beacon: check function → switch on, enable flash, then set to “test” (battery check)\n• Check stand/feet: beacon must stand securely\n• Check CE mark and sine-wave symbol\n• Warning triangle: present, not damaged\n• Hi-vis vest: EN 471, correct size, clean, undamaged\n\nOnly use tested and fully functional warning equipment."
+  },
+  "K2F1": {
+    "title": "Question 1: Operation of the tachograph buttons/switches.*",
+    "answer": "• “Back” button on the left\n• Up/down arrows: navigation\n• “OK”: open/confirm menu\n• “Driver 1” button: set activities or eject card\n\nKnow the buttons = correct operation."
+  },
+  "K2F2": {
+    "title": "Question 2: Check the low-pressure warning device.",
+    "answer": "• Switch ignition on, press brake repeatedly until “Reservoir pressure too low” appears\n• Start engine: STOP warning lights up → warning device works\n\nWarning must be clearly shown – otherwise defective.",
+    "imageLabel": "Reservoir pressure too low – info and STOP warning on the dashboard"
+  },
+  "K2F3": {
+    "title": "Question 3: Check load index and maximum speed rating of the tires using registration certificate part I.",
+    "answer": "• Compare load index and speed rating on the tire with the stated values\n• Values on the tire may be higher, but never lower\n• On twin tires: two load indices, e.g., 154/150 → the second number applies\n\nOn twin tires always use the lower value – that is the valid one."
+  },
+  "K2F4": {
+    "title": "Question 4: Check horn / headlight flash / hazard lights / side marker lights for function.",
+    "answer": "• Press the horn\n• Use headlight flash\n• Switch on hazard lights, walk around the truck to check\n• Also check side marker lights by walking around\n\nWalk around once – don’t miss anything."
+  },
+  "K2F5": {
+    "title": "Question 5: Visual check of radiator and coolant lines; check coolant level.",
+    "answer": "• Radiator: no leaks, no blockages (e.g., leaves, bags), fins not damaged/bent\n• Coolant hoses/lines: no cracks, not porous, clamps tight\n• Coolant level: warning message appears if level is too low – top up only with a cold engine\n\nNever open when hot – risk of scalding!"
+  },
+  "K2F6": {
+    "title": "Question 6: Wheel chocks (quantity, storage).",
+    "answer": "• Check stored in its holder\n• Quantity complete (with 3 axles: 2 chocks)\n• Chocks not damaged, suitable for tire size\n• Check the ice edges – must not be damaged\n\nOnly complete, suitable chocks secure properly.",
+    "imageLabel": "Wheel chocks on the truck – placed in the holder"
+  },
+  "K3F1": {
+    "title": "Question 1: Meaning of tachograph indicator lights; device failure.*",
+    "answer": "• Yellow T = driver card missing or driving time limit approaching\n• Red T = device fault or error message\n• Display off/dead → document activities manually\n\nRed T = act immediately, document the failure."
+  },
+  "K3F2": {
+    "title": "Question 2: Visual inspection of service brake and parking brake.",
+    "answer": "• Brake discs: no cracks, breaks, blue discoloration, deep grooves; not oily\n• Check brake lining status in the onboard computer\n• Parking brake: apply and check it holds\n• Combination cylinder: screw must not be loosened/removed\n\nChecking brakes = your life insurance."
+  },
+  "K3F3": {
+    "title": "Question 3: Visual check that wheel nuts are properly seated.",
+    "answer": "• All wheel nuts present\n• Evenly tightened (recognizable by the exposed threads)\n• No rust streaks behind wheel nuts\n• Wheel nuts not damaged or broken\n\nLoose wheel nuts = risk of wheel loss!"
+  },
+  "K3F4": {
+    "title": "Question 4: Check parking light, low beam, high beam, front clearance lights for function.",
+    "answer": "• Instructor switches on the lights\n• Student stands in front of the vehicle\n• Check parking lights, low beam, high beam\n• Check front clearance/marker lights\n\nAlways check lights in pairs."
+  },
+  "K3F5": {
+    "title": "Question 5: Check engine oil level.",
+    "answer": "• Check in the onboard computer\n• Truck must be level and cooled down for several hours (approx. 6 h)\n• Manual check with dipstick only with the cab tilted\n\nWrong oil level = engine damage."
+  },
+  "K3F6": {
+    "title": "Question 6: First-aid kit (storage).",
+    "answer": "• Open side compartment, remove first-aid kit\n• Check correct DIN standard, expiry date, completeness\n• First-aid kit not damaged\n\nExpired or incomplete → fine + risk.",
+    "imageLabel": "First-aid kit to DIN 13164:2022 – front and back"
+  },
+  "K4F1": {
+    "title": "Question 1: Name the symbols on the tachograph.*",
+    "answer": "• Hammer = work\n• Bed = rest\n• Circle with dot = driving time\n• Square with diagonal line = availability\n\nSet the correct activity only – avoid incorrect records."
+  },
+  "K4F2": {
+    "title": "Question 2: Check that pedal travel is unobstructed.",
+    "answer": "• Look under pedals: no objects (gloves, bottles, slippers)\n• Press accelerator/brake: free movement, no resistance\n• Check cab: no loose items/bottles that could roll forward\n\nFree pedals = safe control."
+  },
+  "K4F3": {
+    "title": "Question 3: Check tire condition.",
+    "answer": "• Tread: at least 1.6 mm, even, nothing torn out\n• Damage: no cuts, bulges, cracks on sidewalls\n• Foreign objects: no screws/nails; on twin tires no stones or other objects\n• Tire pressure: truck must be level; no pronounced bulging\n• Twin tires: tap the inner tire with a hammer\n\nTwin tires are often overlooked!"
+  },
+  "K4F4": {
+    "title": "Question 4: Check horn / headlight flash / hazard lights / side marker lights for function.",
+    "answer": "• Press the horn\n• Use headlight flash\n• Switch on hazard lights, walk around the truck to check\n• Also check side marker lights by walking around\n\nWalk around once – don’t miss anything."
+  },
+  "K4F5": {
+    "title": "Question 5: Check the fuel system for leaks.",
+    "answer": "• Tank: not damaged, properly secured\n• Tank cap: present and closed\n• Connections: no leaks\n• Fuel lines: from tank to engine → tight, nothing leaking\n• Fuel level: check dashboard display\n• AdBlue: check level\n\nDon’t forget the tank cap + AdBlue."
+  },
+  "K4F6": {
+    "title": "Question 6: Warning beacon (function), warning triangle, high-visibility vest (present).",
+    "answer": "• Warning beacon: check function → switch on, enable flash, then set to “test” (battery check)\n• Check stand/feet: beacon must stand securely\n• Check CE mark and sine-wave symbol\n• Warning triangle: present, not damaged\n• Hi-vis vest: EN 471, correct size, clean, undamaged\n\nOnly use tested and fully functional warning equipment."
+  },
+  "K5F1": {
+    "title": "Question 1: Checking a chart disc / printout from the tachograph.*",
+    "answer": "a) How many km were driven?\nb) How long was the interruption of driving?\nc) After how many hours was the first break taken?\nd) What was the maximum speed / were any speeding events documented?\n\n• Distance driven: 89 km\n• Interruption: 20 hours 26 minutes\n• First break: after 1 hour 47 minutes\n• Speeding: none documented\n\nRead values clearly from the printout/chart – don’t guess."
+  },
+  "K5F2": {
+    "title": "Question 2: Build up reservoir pressure, confirm readiness to drive.",
+    "answer": "• Check the pressure gauges\n• No pressure warning active → vehicle ready\n• If reservoir pressure is too low: start engine and wait until warning goes out\n• Inform the examiner: vehicle is ready to drive\n\nCheck pressure, warning light off – then ready."
+  },
+  "K5F3": {
+    "title": "Question 3: Check rims for damage.",
+    "answer": "• Rim flange: no dents or sharp edges\n• No cracks between ventilation holes or at wheel nuts\n• Weld seam must not be broken out\n\nInspect the rim carefully all around."
+  },
+  "K5F4": {
+    "title": "Question 4: Check parking light, low beam, high beam, front clearance lights for function.",
+    "answer": "• Instructor switches on each light\n• Student stands in front and checks in order:\n  • Parking light → lit on both sides\n  • Low beam → lit on both sides\n  • High beam → blue symbol on dashboard + both headlights on\n  • Front clearance lights → visibly on\n\nAlways check both sides systematically – don’t miss anything."
+  },
+  "K5F5": {
+    "title": "Question 5: Visual check of the drive belts for auxiliary units (e.g., alternator, power steering and water pump).",
+    "answer": "• In the exam the cab is not tilted – the student explains what would be checked\n• Serpentine belt: no cracks, not porous, not frayed, no oil traces\n• Mention tension only if the examiner asks:\n  • 45° twist (serpentine belt)\n  • Thumb-width deflection (V-belt)\n\nA defective belt can snap – spot it early!"
+  },
+  "K5F6": {
+    "title": "Question 6: Condition of windows and mirrors (cleanliness, damage).",
+    "answer": "• Mirrors: secure, not loose, not damaged, no black dots, not cloudy\n• Windshield: clean, not damaged, no stone chips in the field of vision/camera area\n\nClear view = safe driving."
+  },
+  "K6F1": {
+    "title": "Question 1: Filling out the chart disc / signing off the tachograph at the end of a trip.*",
+    "answer": "• This truck has no chart disc → sign off on the tachograph\n• Set device to rest\n• Press eject button\n• Enter end country: Germany\n• No printout needed, only if something happened that day\n\nAlways sign off correctly – otherwise fines."
+  },
+  "K6F2": {
+    "title": "Question 2: Build up reservoir pressure, confirm readiness to drive.",
+    "answer": "• Check the pressure gauges\n• No pressure warning active → vehicle ready\n• If reservoir pressure is too low: start engine and wait until warning goes out\n• Inform the examiner: vehicle is ready to drive\n\nCheck pressure, warning light off – then ready."
+  },
+  "K6F3": {
+    "title": "Question 3: Check the spare wheel securing.",
+    "answer": "• Check the double securing:\n  • Cable of the lifting device (to raise the tire)\n  • Bolted fastening of the spare wheel\n• Both securing points must be tight\n\nAlways remember the double securing.",
+    "imageLabel": "Spare wheel securing – lift cable and bolted fastening"
+  },
+  "K6F4": {
+    "title": "Question 4: Name indicator lights or activate control systems and explain with two examples.",
+    "answer": "• Name two indicator lights (e.g., parking brake red, high beam blue)\n• Name control systems: fuel gauge, pressure gauges/manometers\n• If the examiner shows an unknown light: refer to the operating manual\n\nAt least two examples – that’s enough for the examiner."
+  },
+  "K6F5": {
+    "title": "Question 5: Check engine oil level.",
+    "answer": "• Check in the onboard computer\n• Truck must be level and cooled down for several hours (approx. 6 h)\n• Manual check with dipstick only with the cab tilted\n\nWrong oil level = engine damage."
+  },
+  "K6F6": {
+    "title": "Question 6: Visual inspection of the trailer coupling.",
+    "answer": "• Coupling closed\n• Check indicator pin → correctly locked\n• Jaw: no cracks, no breaks, not damaged\n• Bolts tight\n• Crossmember: no cracks\n• Type plate on the coupling present\n\nAlways check the coupling is securely locked.",
+    "imageLabel": "Trailer coupling with jaw and type plate"
+  },
+  "K7F1": {
+    "title": "Question 1: Tasks on the tachograph before starting the trip*",
+    "answer": "• Switch ignition on, insert driver card\n• Check UTC time and name\n• Make a manual entry (previous activities)\n• Enter start country: Germany\n• Set device to “work”\n\nSet everything correctly first – otherwise fines may apply.",
+    "imageLabel": "Digital tachograph – tasks before starting the trip"
+  },
+  "K7F2": {
+    "title": "Question 2: Check the low-pressure warning device.",
+    "answer": "• Switch ignition on, press brake repeatedly until “Reservoir pressure too low” appears\n• Start engine: STOP warning lights up → warning device works\n\nWarning must be clearly shown – otherwise defective.",
+    "imageLabel": "Reservoir pressure too low – info and STOP warning on the dashboard"
+  },
+  "K7F3": {
+    "title": "Question 3: Check the power steering assist.",
+    "answer": "• Student sits in the cab\n• Hold slight pressure on the steering wheel, start engine\n• Steering wheel must give way → power assist works\n\nDo not confuse with steering play – that’s a different task."
+  },
+  "K7F4": {
+    "title": "Question 4: Check brake lights, license plate light, and reflectors.",
+    "answer": "• Have the instructor switch on the lights and press the brake\n• Check license plate illumination\n• Reflectors: check cleanliness and damage\n\nEverything at the rear: bright, clean, intact."
+  },
+  "K7F5": {
+    "title": "Question 5: Visual check of the drive belts for auxiliary units (e.g., alternator, power steering and water pump).",
+    "answer": "• In the exam the cab is not tilted – the student explains what would be checked\n• Serpentine belt: no cracks, not porous, not frayed, no oil traces\n• Mention tension only if the examiner asks:\n  • 45° twist (serpentine belt)\n  • Thumb-width deflection (V-belt)\n\nA defective belt can snap – spot it early!"
+  },
+  "K7F6": {
+    "title": "Question 6: Sideboards, latches, storage compartments, loading equipment, load securing.",
+    "answer": "• Sideboards: no damage or bulging; roller shutter closed\n• Latches: swap body and supports secured\n• Cab storage compartments closed\n• Loading equipment: none fitted (otherwise check condition/attachment)\n• Load securing: open roller shutter; no load here; explain to the examiner “form-fit” and “force-fit”\n\nFirst check condition, then name securing methods."
+  },
+  "K8F1": {
+    "title": "Question 1: Operation of the tachograph buttons/switches.*",
+    "answer": "• “Back” button (left)\n• Up/down arrows: navigation\n• “OK”: open/confirm menu\n• “Driver 1” button: set activities / eject card\n\nKnow the buttons = correct operation."
+  },
+  "K8F2": {
+    "title": "Question 2: Check the antifreeze supply.",
+    "answer": "• A truck does not have an “antifreeze supply” to check here; instead it has an air dryer\n• At the air tanks: operate the drain valve → no water should come out\n• Check in the onboard computer when the air dryer needs changing\n\nNo water at the valve = system working properly."
+  },
+  "K8F3": {
+    "title": "Question 3: Check steering play.",
+    "answer": "• Start engine, look at the tire\n• Move steering wheel carefully left/right → check for longitudinal play (should not be present)\n• 2–3 fingers of play is still acceptable\n\nLongitudinal play should be minimal – otherwise workshop."
+  },
+  "K8F4": {
+    "title": "Question 4: Check battery (connections, mounting).",
+    "answer": "• Battery is secured, must not move\n• Cables firmly connected\n• Terminals covered and greased\n• No acid leakage, battery clean\n\nLoose battery = fire/failure risk."
+  },
+  "K8F5": {
+    "title": "Question 5: Check washer fluid level for windscreen/headlight washer system.",
+    "answer": "• Name/show the dashboard warning light (only comes on when level is low)\n• If examiner asks: open hood, show the blue cap (filler neck)\n\nA warning message appears when the level is low."
+  },
+  "K8F6": {
+    "title": "Question 6: Tarp / bows (condition and fastening; check tarp is free of water, snow and ice).",
+    "answer": "• This truck has no tarp → sideboards not damaged; swap body/supports secured\n• Roof surface: no snow, ice, water, bottles, branches\n• If a tarp is fitted: not torn, properly tensioned; bows secure, not bent; correct height set\n\nAlways consider anything on top – fall hazard."
+  },
+  "K9F1": {
+    "title": "Question 1: Name the symbols on the tachograph.*",
+    "answer": "• Hammer = work\n• Bed = rest\n• Circle with dot = driving time\n• Square with diagonal line = availability\n\nSet the correct activity only – avoid incorrect records."
+  },
+  "K9F2": {
+    "title": "Question 2: Visual inspection of service brake and parking brake.",
+    "answer": "• Brake discs: no cracks, breaks, blue discoloration, deep grooves; not oily\n• Check brake lining status in the onboard computer\n• Parking brake: apply and check it holds\n• Combination cylinder: screw must not be loosened/removed\n\nChecking brakes = your life insurance."
+  },
+  "K9F3": {
+    "title": "Question 3: Check power steering fluid level.",
+    "answer": "• On a truck this is not checked manually\n• If the level is too low, a warning message appears on the dashboard\n• You may also notice if steering becomes heavy\n\nFollow the warning message – don’t check at the reservoir."
+  },
+  "K9F4": {
+    "title": "Question 4: Check tail lights and rear clearance lights for function.",
+    "answer": "• Instructor switches on the lights\n• Student goes to the rear of the truck\n• Check left/right tail lights\n• Check rear clearance lights\n\nAlways check the rear – both sides."
+  },
+  "K9F5": {
+    "title": "Question 5: Check windscreen washer system and nozzle alignment.",
+    "answer": "• Switch ignition on, operate washer\n• Water from all nozzles is distributed evenly\n• Wipers do not smear; screen gets clean\n• Blocked nozzle: adjust/clear with a pin\n\nEven distribution = clear view."
+  },
+  "K9F6": {
+    "title": "Question 6: Condition of windows and mirrors (cleanliness, damage).",
+    "answer": "• Mirrors: secure, not loose, not damaged, no black dots, not cloudy\n• Windshield: clean, not damaged, no stone chips in the field of vision/camera area\n\nClear view = safe driving."
+  },
+  "K10F1": {
+    "title": "Question 1: Checking a chart disc / printout from the tachograph.*",
+    "answer": "a) How many km were driven?\nb) How long was the interruption of driving?\nc) After how many hours was the first break taken?\nd) What was the maximum speed / were any speeding events documented?\n\n• Distance driven: 89 km\n• Interruption: 20 hours 26 minutes\n• First break: after 1 hour 47 minutes\n• Speeding: none documented\n\nRead values from the printout – don’t guess."
+  },
+  "K10F2": {
+    "title": "Question 2: Check that pedal travel is unobstructed.",
+    "answer": "• Look under the pedals: no objects (e.g., gloves, slippers, bottles)\n• Press accelerator and brake: free movement, no resistance\n• Check cab: no loose items/bottles that could roll forward\n\nFree pedals = safe control."
+  },
+  "K10F3": {
+    "title": "Question 3: Visual inspection of the suspension.",
+    "answer": "• Raise the truck with air suspension\n• Air bellows: no cracks, cuts, bulges; not porous; runs cleanly over the cup\n• Cup must not be heavily rusted\n• Show shock absorber: must not leak oil\n\nShock absorbers matter – often neglected."
+  },
+  "K10F4": {
+    "title": "Question 4: Name indicator lights or activate control systems and explain with two examples.",
+    "answer": "• Name two indicator lights (e.g., parking brake red, high beam blue)\n• Name control systems: fuel gauge, pressure gauges/manometers\n• If the examiner shows an unknown light: refer to the operating manual\n\nAt least two examples – that’s enough for the examiner."
+  },
+  "K10F5": {
+    "title": "Question 5: Check the condition indicator for the air filter system.",
+    "answer": "• Show the air filter warning light\n• If the light stays on, the air filter is clogged\n\nLight on = filter blocked."
+  },
+  "K10F6": {
+    "title": "Question 6: Wheel chocks (quantity, storage).",
+    "answer": "• Check stored in its holder\n• Quantity complete (with 3 axles: 2 chocks)\n• Chocks not damaged, suitable for tire size\n• Check the ice edges – must not be damaged\n\nOnly complete, suitable chocks secure properly.",
+    "imageLabel": "Wheel chocks on the truck – placed in the holder"
+  }
+};
+
+const QUESTIONS_AR = {
+  "K1F1": {
+    "title": "السؤال 1: المهام على التاكوغراف قبل بدء الرحلة*",
+    "answer": "• بدّل/شغّل الإشعال تشغيل, insert بطاقة السائق\n• تحقق من UTC الوقت و الاسم\n• Make إدخال يدوي (الأنشطة السابقة)\n• Enter ابدأ الدولة: Germany\n• اضبط جهاز إلى “work”\n\nاضبط everything correctly الأول – وإلا fines قد apply.",
+    "imageLabel": "Digital التاكوغراف – tasks before starting trip"
+  },
+  "K1F2": {
+    "title": "السؤال 2: تحقق من سائل الفرامل.",
+    "answer": "• تشغيل الشاحنة there هو لا الفرامل fluid: نظام هو فرامل هوائية\n• Instead: تحقق من الخزان الضغط و مؤشرات التحذير تشغيل لوحة العدادات\n\nالفرامل fluid هو car topic – trucks الفرامل مع هواء.",
+    "imageLabel": ""
+  },
+  "K1F3": {
+    "title": "السؤال 3: تحقق من مقاس الإطار باستخدام شهادة تسجيل المركبة الجزء الأول.",
+    "answer": "• Compare مقاس الإطار تشغيل الإطار مع entry في registration\n• Items 15.1, 15.2 و 15.3 يجب match\n• Example: 385/70 R22.5\n\nData يجب match exactly – وإلا operating permit قد يكون invalid.",
+    "imageLabel": ""
+  },
+  "K1F4": {
+    "title": "السؤال 4: تحقق من أضواء الفرامل وضوء لوحة التسجيل والعاكسات.",
+    "answer": "• Have المدرب شغّل الأضواء و اضغط الفرامل\n• تحقق من لوحة التسجيل illumination\n• العاكسات: تحقق من cleanliness و ضرر\n\nEverything عند خلف: bright, نظيف, intact.",
+    "imageLabel": ""
+  },
+  "K1F5": {
+    "title": "السؤال 5: فحص بصري للمبرّد وخراطيم سائل التبريد؛ وتحقق من مستوى سائل التبريد.",
+    "answer": "• المبرّد: لا تسرّبات, لا blockages (e.g., leaves, bags), fins لا تالف/bent\n• سائل التبريد hoses/lines: لا تشققات, لا مسامي, clamps محكم\n• مستوى سائل التبريد: تحذير رسالة تظهر إذا المستوى هو جداً منخفض – top أعلى فقط مع cold المحرك\n\nNever افتح عندما حار – خطر من scalding!",
+    "imageLabel": ""
+  },
+  "K1F6": {
+    "title": "السؤال 6: منارة التحذير (الوظيفة)، مثلث التحذير، سترة عاكسة (موجودة).",
+    "answer": "• منارة التحذير: تحقق من الوظيفة → شغّل, enable يومض, ثم اضبط إلى “test” (البطارية تحقق من)\n• تحقق من stand/feet: beacon يجب stand securely\n• تحقق من CE mark و sine-wave symbol\n• مثلث التحذير: موجود, لا تالف\n• Hi-vis vest: EN 471, صحيح size, نظيف, undamaged\n\nفقط استخدم tested و fully functional تحذير equipment.",
+    "imageLabel": ""
+  },
+  "K2F1": {
+    "title": "السؤال 1: تشغيل أزرار/مفاتيح التاكوغراف*",
+    "answer": "• “Back” زر تشغيل يسار\n• أعلى/down arrows: navigation\n• “OK”: افتح/confirm menu\n• “Driver 1” زر: اضبط activities أو eject card\n\nKnow buttons = صحيح operation.",
+    "imageLabel": ""
+  },
+  "K2F2": {
+    "title": "السؤال 2: تحقق من جهاز إنذار انخفاض الضغط.",
+    "answer": "• بدّل/شغّل الإشعال تشغيل, اضغط الفرامل repeatedly until “الخزان الضغط جداً منخفض” تظهر\n• ابدأ المحرك: STOP تحذير الأضواء أعلى → تحذير جهاز works\n\nتحذير يجب يكون clearly shown – وإلا defective.",
+    "imageLabel": "الخزان الضغط جداً منخفض – info و STOP تحذير تشغيل لوحة العدادات"
+  },
+  "K2F3": {
+    "title": "السؤال 3: تحقق من مؤشر الحمولة وتصنيف السرعة القصوى للإطارات باستخدام شهادة التسجيل (الجزء الأول).",
+    "answer": "• Compare مؤشر الحمولة و speed rating تشغيل الإطار مع stated values\n• Values تشغيل الإطار قد يكون higher, but never lower\n• تشغيل مزدوج الإطارات: اثنان load indices, e.g., 154/150 → second number applies\n\nتشغيل مزدوج الإطارات دائماً استخدم lower value – أن هو valid one.",
+    "imageLabel": ""
+  },
+  "K2F4": {
+    "title": "السؤال 4: تحقق من horn / مصباح أمامي يومض / تحذير الأضواء / جانب علامة الأضواء لـ الوظيفة.",
+    "answer": "• اضغط horn\n• استخدم مصباح أمامي يومض\n• شغّل تحذير الأضواء, walk حول الشاحنة إلى تحقق من\n• Also تحقق من جانب علامة الأضواء by walking حول\n\nWalk حول once – لا’t miss anything.",
+    "imageLabel": ""
+  },
+  "K2F5": {
+    "title": "السؤال 5: فحص بصري للمبرّد وخراطيم سائل التبريد؛ وتحقق من مستوى سائل التبريد.",
+    "answer": "• المبرّد: لا تسرّبات, لا blockages (e.g., leaves, bags), fins لا تالف/bent\n• سائل التبريد hoses/lines: لا تشققات, لا مسامي, clamps محكم\n• مستوى سائل التبريد: تحذير رسالة تظهر إذا المستوى هو جداً منخفض – top أعلى فقط مع cold المحرك\n\nNever افتح عندما حار – خطر من scalding!",
+    "imageLabel": ""
+  },
+  "K2F6": {
+    "title": "السؤال 6: مصدّات العجلات (العدد، مكان التخزين).",
+    "answer": "• تحقق من stored في its holder\n• Quantity complete (مع 3 axles: 2 مصدّات)\n• مصدّات لا تالف, suitable لـ مقاس الإطار\n• تحقق من ice edges – يجب لا يكون تالف\n\nفقط complete, suitable مصدّات أمّن بشكل صحيح.",
+    "imageLabel": "مصدّات العجلات تشغيل الشاحنة – placed في holder"
+  },
+  "K3F1": {
+    "title": "السؤال 1: Meaning من التاكوغراف مصابيح المؤشرات; جهاز failure.*",
+    "answer": "• Yellow T = بطاقة السائق missing أو القيادة الوقت limit approaching\n• Red T = جهاز fault أو error رسالة\n• Display إيقاف/dead → document activities manually\n\nRed T = act immediately, document failure.",
+    "imageLabel": ""
+  },
+  "K3F2": {
+    "title": "السؤال 2: بصري inspection من service الفرامل و الوقوف الفرامل.",
+    "answer": "• الفرامل discs: لا تشققات, breaks, أزرق discoloration, deep grooves; لا oily\n• تحقق من الفرامل lining status في حاسوب المركبة\n• الوقوف الفرامل: apply و تحقق من هو/هي holds\n• Combination cylinder: screw يجب لا يكون loosened/removed\n\nChecking brakes = your life insurance.",
+    "imageLabel": ""
+  },
+  "K3F3": {
+    "title": "السؤال 3: بصري تحقق من أن العجلة صواميل هي بشكل صحيح seated.",
+    "answer": "• All العجلة صواميل موجود\n• Evenly tightened (recognizable by exposed threads)\n• لا rust streaks behind العجلة صواميل\n• العجلة صواميل لا تالف أو broken\n\nمفكوك العجلة صواميل = خطر من العجلة loss!",
+    "imageLabel": ""
+  },
+  "K3F4": {
+    "title": "السؤال 4: تحقق من الوقوف ضوء, منخفض شعاع, مرتفع شعاع, أمام الخلوص الأضواء لـ الوظيفة.",
+    "answer": "• المدرب switches تشغيل الأضواء\n• المتدرب stands في أمام من المركبة\n• تحقق من الوقوف الأضواء, منخفض شعاع, مرتفع شعاع\n• تحقق من أمام الخلوص/علامة الأضواء\n\nدائماً تحقق من الأضواء في pairs.",
+    "imageLabel": ""
+  },
+  "K3F5": {
+    "title": "السؤال 5: تحقق من زيت المحرك المستوى.",
+    "answer": "• تحقق من في حاسوب المركبة\n• الشاحنة يجب يكون المستوى و cooled down لـ several ساعات (approx. 6 h)\n• Manual تحقق من مع dipstick فقط مع الكابينة tilted\n\nWrong مستوى الزيت = المحرك ضرر.",
+    "imageLabel": ""
+  },
+  "K3F6": {
+    "title": "السؤال 6: الأول-aid kit (storage).",
+    "answer": "• افتح جانب compartment, remove الأول-aid kit\n• تحقق من صحيح DIN standard, expiry date, completeness\n• الأول-aid kit لا تالف\n\nExpired أو incomplete → fine + خطر.",
+    "imageLabel": "الأول-aid kit إلى DIN 13164:2022 – أمام و back"
+  },
+  "K4F1": {
+    "title": "السؤال 1: الاسم symbols تشغيل التاكوغراف.*",
+    "answer": "• Hammer = work\n• Bed = rest\n• Circle مع dot = القيادة الوقت\n• Square مع diagonal line = availability\n\nاضبط صحيح activity فقط – avoid incorrect records.",
+    "imageLabel": ""
+  },
+  "K4F2": {
+    "title": "السؤال 2: تحقق من أن مشوار الدواسة غير معاق.",
+    "answer": "• Look under pedals: لا objects (gloves, عبوات, slippers)\n• اضغط accelerator/الفرامل: حر/متاح movement, لا resistance\n• تحقق من الكابينة: لا مفكوك items/عبوات أن could roll forward\n\nحر/متاح pedals = safe control.",
+    "imageLabel": ""
+  },
+  "K4F3": {
+    "title": "السؤال 3: تحقق من الإطار حالة.",
+    "answer": "• Tread: عند least 1.6 mm, even, nothing torn خارج\n• ضرر: لا cuts, bulges, تشققات تشغيل sidewalls\n• Foreign objects: لا screws/nails; تشغيل مزدوج الإطارات لا stones أو other objects\n• الإطار الضغط: الشاحنة يجب يكون المستوى; لا pronounced bulging\n• مزدوج الإطارات: tap inner الإطار مع hammer\n\nمزدوج الإطارات هي often overlooked!",
+    "imageLabel": ""
+  },
+  "K4F4": {
+    "title": "السؤال 4: تحقق من horn / مصباح أمامي يومض / تحذير الأضواء / جانب علامة الأضواء لـ الوظيفة.",
+    "answer": "• اضغط horn\n• استخدم مصباح أمامي يومض\n• شغّل تحذير الأضواء, walk حول الشاحنة إلى تحقق من\n• Also تحقق من جانب علامة الأضواء by walking حول\n\nWalk حول once – لا’t miss anything.",
+    "imageLabel": ""
+  },
+  "K4F5": {
+    "title": "السؤال 5: تحقق من وقود نظام لـ تسرّبات.",
+    "answer": "• Tank: لا تالف, بشكل صحيح secured\n• Tank cap: موجود و closed\n• Connections: لا تسرّبات\n• وقود lines: from tank إلى المحرك → محكم, nothing leaking\n• وقود المستوى: تحقق من لوحة العدادات display\n• AdBlue: تحقق من المستوى\n\nلا’t forget tank cap + AdBlue.",
+    "imageLabel": ""
+  },
+  "K4F6": {
+    "title": "السؤال 6: منارة التحذير (الوظيفة)، مثلث التحذير، سترة عاكسة (موجودة).",
+    "answer": "• منارة التحذير: تحقق من الوظيفة → شغّل, enable يومض, ثم اضبط إلى “test” (البطارية تحقق من)\n• تحقق من stand/feet: beacon يجب stand securely\n• تحقق من CE mark و sine-wave symbol\n• مثلث التحذير: موجود, لا تالف\n• Hi-vis vest: EN 471, صحيح size, نظيف, undamaged\n\nفقط استخدم tested و fully functional تحذير equipment.",
+    "imageLabel": ""
+  },
+  "K5F1": {
+    "title": "السؤال 1: فحص قرص المخطط/الطباعة من التاكوغراف*",
+    "answer": ") كيف many km were driven?\nb) كيف long كان interruption من القيادة?\nc) After كيف many ساعات كان الأول break taken?\nd) What كان maximum speed / were أي speeding events documented?\n\n• Distance driven: 89 km\n• Interruption: 20 ساعات 26 minutes\n• الأول break: after 1 hour 47 minutes\n• Speeding: none documented\n\nRead values clearly from طباعة/chart – لا’t guess.",
+    "imageLabel": ""
+  },
+  "K5F2": {
+    "title": "السؤال 2: Build أعلى الخزان الضغط, confirm readiness إلى قُد.",
+    "answer": "• تحقق من الضغط gauges\n• لا الضغط تحذير active → المركبة جاهز\n• إذا الخزان الضغط هو جداً منخفض: ابدأ المحرك و wait until تحذير goes خارج\n• Inform الفاحص: المركبة هو جاهز إلى قُد\n\nتحقق من الضغط, تحذير ضوء إيقاف – ثم جاهز.",
+    "imageLabel": ""
+  },
+  "K5F3": {
+    "title": "السؤال 3: تحقق من rims لـ ضرر.",
+    "answer": "• Rim flange: لا dents أو sharp edges\n• لا تشققات between ventilation holes أو عند العجلة صواميل\n• Weld seam يجب لا يكون broken خارج\n\nInspect rim carefully all حول.",
+    "imageLabel": ""
+  },
+  "K5F4": {
+    "title": "السؤال 4: تحقق من الوقوف ضوء, منخفض شعاع, مرتفع شعاع, أمام الخلوص الأضواء لـ الوظيفة.",
+    "answer": "• المدرب switches تشغيل each ضوء\n• المتدرب stands في أمام و checks في order:\n• الوقوف ضوء → lit تشغيل كلا sides\n• منخفض شعاع → lit تشغيل كلا sides\n• مرتفع شعاع → أزرق symbol تشغيل لوحة العدادات + كلا headlights تشغيل\n• أمام الخلوص الأضواء → visibly تشغيل\n\nدائماً تحقق من كلا sides systematically – لا’t miss anything.",
+    "imageLabel": ""
+  },
+  "K5F5": {
+    "title": "السؤال 5: بصري تحقق من من قُد belts لـ auxiliary units (e.g., alternator, قدرة/طاقة التوجيه و ماء pump).",
+    "answer": "• في exam الكابينة هو لا tilted – المتدرب explains what would يكون checked\n• Serpentine حزام: لا تشققات, لا مسامي, لا frayed, لا زيت traces\n• Mention tension فقط إذا الفاحص asks:\n• 45° twist (serpentine حزام)\n• Thumb-width deflection (V-حزام)\n\ndefective حزام can snap – spot هو/هي early!",
+    "imageLabel": ""
+  },
+  "K5F6": {
+    "title": "السؤال 6: حالة من windows و مرايا (cleanliness, ضرر).",
+    "answer": "• مرايا: أمّن, لا مفكوك, لا تالف, لا black dots, لا cloudy\n• الزجاج الأمامي: نظيف, لا تالف, لا stone chips في field من vision/camera area\n\nClear view = safe القيادة.",
+    "imageLabel": ""
+  },
+  "K6F1": {
+    "title": "السؤال 1: Filling خارج قرص المخطط / signing إيقاف التاكوغراف عند end من trip.*",
+    "answer": "• This الشاحنة has لا قرص المخطط → sign إيقاف تشغيل التاكوغراف\n• اضبط جهاز إلى rest\n• اضغط eject زر\n• Enter end الدولة: Germany\n• لا طباعة needed, فقط إذا something happened أن day\n\nدائماً sign إيقاف correctly – وإلا fines.",
+    "imageLabel": ""
+  },
+  "K6F2": {
+    "title": "السؤال 2: Build أعلى الخزان الضغط, confirm readiness إلى قُد.",
+    "answer": "• تحقق من الضغط gauges\n• لا الضغط تحذير active → المركبة جاهز\n• إذا الخزان الضغط هو جداً منخفض: ابدأ المحرك و wait until تحذير goes خارج\n• Inform الفاحص: المركبة هو جاهز إلى قُد\n\nتحقق من الضغط, تحذير ضوء إيقاف – ثم جاهز.",
+    "imageLabel": ""
+  },
+  "K6F3": {
+    "title": "السؤال 3: تحقق من spare العجلة تأمين.",
+    "answer": "• تحقق من double تأمين:\n• Cable من lifting جهاز (إلى raise الإطار)\n• Bolted fastening من spare العجلة\n• كلا تأمين points يجب يكون محكم\n\nدائماً remember double تأمين.",
+    "imageLabel": "Spare العجلة تأمين – lift cable و bolted fastening"
+  },
+  "K6F4": {
+    "title": "السؤال 4: سمِّ مصابيح المؤشرات أو فعِّل أنظمة التحكم واشرح بمثالين.",
+    "answer": "• الاسم اثنان مصابيح المؤشرات (e.g., الوقوف الفرامل red, مرتفع شعاع أزرق)\n• الاسم أنظمة التحكم: وقود gauge, الضغط gauges/manometers\n• إذا الفاحص shows unknown ضوء: refer إلى operating manual\n\nعند least اثنان examples – أن’s enough لـ الفاحص.",
+    "imageLabel": ""
+  },
+  "K6F5": {
+    "title": "السؤال 5: تحقق من زيت المحرك المستوى.",
+    "answer": "• تحقق من في حاسوب المركبة\n• الشاحنة يجب يكون المستوى و cooled down لـ several ساعات (approx. 6 h)\n• Manual تحقق من مع dipstick فقط مع الكابينة tilted\n\nWrong مستوى الزيت = المحرك ضرر.",
+    "imageLabel": ""
+  },
+  "K6F6": {
+    "title": "السؤال 6: بصري inspection من trailer coupling.",
+    "answer": "• Coupling closed\n• تحقق من مؤشر pin → correctly locked\n• Jaw: لا تشققات, لا breaks, لا تالف\n• Bolts محكم\n• Crossmember: لا تشققات\n• Type plate تشغيل coupling موجود\n\nدائماً تحقق من coupling هو securely locked.",
+    "imageLabel": "Trailer coupling مع jaw و type plate"
+  },
+  "K7F1": {
+    "title": "السؤال 1: المهام على التاكوغراف قبل بدء الرحلة*",
+    "answer": "• بدّل/شغّل الإشعال تشغيل, insert بطاقة السائق\n• تحقق من UTC الوقت و الاسم\n• Make إدخال يدوي (الأنشطة السابقة)\n• Enter ابدأ الدولة: Germany\n• اضبط جهاز إلى “work”\n\nاضبط everything correctly الأول – وإلا fines قد apply.",
+    "imageLabel": "Digital التاكوغراف – tasks before starting trip"
+  },
+  "K7F2": {
+    "title": "السؤال 2: تحقق من جهاز إنذار انخفاض الضغط.",
+    "answer": "• بدّل/شغّل الإشعال تشغيل, اضغط الفرامل repeatedly until “الخزان الضغط جداً منخفض” تظهر\n• ابدأ المحرك: STOP تحذير الأضواء أعلى → تحذير جهاز works\n\nتحذير يجب يكون clearly shown – وإلا defective.",
+    "imageLabel": "الخزان الضغط جداً منخفض – info و STOP تحذير تشغيل لوحة العدادات"
+  },
+  "K7F3": {
+    "title": "السؤال 3: تحقق من قدرة/طاقة التوجيه assist.",
+    "answer": "• المتدرب sits في الكابينة\n• Hold slight الضغط تشغيل التوجيه العجلة, ابدأ المحرك\n• التوجيه العجلة يجب give way → قدرة/طاقة assist works\n\nلا confuse مع التوجيه play – أن’s different task.",
+    "imageLabel": ""
+  },
+  "K7F4": {
+    "title": "السؤال 4: تحقق من أضواء الفرامل وضوء لوحة التسجيل والعاكسات.",
+    "answer": "• Have المدرب شغّل الأضواء و اضغط الفرامل\n• تحقق من لوحة التسجيل illumination\n• العاكسات: تحقق من cleanliness و ضرر\n\nEverything عند خلف: bright, نظيف, intact.",
+    "imageLabel": ""
+  },
+  "K7F5": {
+    "title": "السؤال 5: بصري تحقق من من قُد belts لـ auxiliary units (e.g., alternator, قدرة/طاقة التوجيه و ماء pump).",
+    "answer": "• في exam الكابينة هو لا tilted – المتدرب explains what would يكون checked\n• Serpentine حزام: لا تشققات, لا مسامي, لا frayed, لا زيت traces\n• Mention tension فقط إذا الفاحص asks:\n• 45° twist (serpentine حزام)\n• Thumb-width deflection (V-حزام)\n\ndefective حزام can snap – spot هو/هي early!",
+    "imageLabel": ""
+  },
+  "K7F6": {
+    "title": "السؤال 6: Sideboards, latches, storage compartments, loading equipment, load تأمين.",
+    "answer": "• Sideboards: لا ضرر أو bulging; roller shutter closed\n• Latches: swap body و supports secured\n• الكابينة storage compartments closed\n• Loading equipment: none fitted (وإلا تحقق من حالة/attachment)\n• Load تأمين: افتح roller shutter; لا load here; explain إلى الفاحص “form-fit” و “force-fit”\n\nالأول تحقق من حالة, ثم الاسم تأمين methods.",
+    "imageLabel": ""
+  },
+  "K8F1": {
+    "title": "السؤال 1: تشغيل أزرار/مفاتيح التاكوغراف*",
+    "answer": "• “Back” زر (يسار)\n• أعلى/down arrows: navigation\n• “OK”: افتح/confirm menu\n• “Driver 1” زر: اضبط activities / eject card\n\nKnow buttons = صحيح operation.",
+    "imageLabel": ""
+  },
+  "K8F2": {
+    "title": "السؤال 2: تحقق من antifreeze supply.",
+    "answer": "• الشاحنة does لا have “antifreeze supply” إلى تحقق من here; instead هو/هي has هواء dryer\n• عند هواء tanks: operate drain valve → لا ماء should come خارج\n• تحقق من في حاسوب المركبة عندما هواء dryer needs changing\n\nلا ماء عند valve = نظام working بشكل صحيح.",
+    "imageLabel": ""
+  },
+  "K8F3": {
+    "title": "السؤال 3: تحقق من التوجيه play.",
+    "answer": "• ابدأ المحرك, look عند الإطار\n• Move التوجيه العجلة carefully يسار/يمين → تحقق من لـ longitudinal play (should لا يكون موجود)\n• 2–3 fingers من play هو still acceptable\n\nLongitudinal play should يكون minimal – وإلا workshop.",
+    "imageLabel": ""
+  },
+  "K8F4": {
+    "title": "السؤال 4: تحقق من البطارية (connections, mounting).",
+    "answer": "• البطارية هو secured, يجب لا move\n• Cables firmly connected\n• Terminals covered و greased\n• لا acid leakage, البطارية نظيف\n\nمفكوك البطارية = fire/failure خطر.",
+    "imageLabel": ""
+  },
+  "K8F5": {
+    "title": "السؤال 5: تحقق من غسالة/رشاش fluid المستوى لـ windscreen/مصباح أمامي غسالة/رشاش نظام.",
+    "answer": "• الاسم/show لوحة العدادات تحذير ضوء (فقط comes تشغيل عندما المستوى هو منخفض)\n• إذا الفاحص asks: افتح hood, show أزرق cap (filler neck)\n\nتحذير رسالة تظهر عندما المستوى هو منخفض.",
+    "imageLabel": ""
+  },
+  "K8F6": {
+    "title": "السؤال 6: Tarp / bows (حالة و fastening; تحقق من tarp هو حر/متاح من ماء, snow و ice).",
+    "answer": "• This الشاحنة has لا tarp → sideboards لا تالف; swap body/supports secured\n• Roof surface: لا snow, ice, ماء, عبوات, branches\n• إذا tarp هو fitted: لا torn, بشكل صحيح tensioned; bows أمّن, لا bent; صحيح height اضبط\n\nدائماً consider anything تشغيل top – fall تحذير.",
+    "imageLabel": ""
+  },
+  "K9F1": {
+    "title": "السؤال 1: الاسم symbols تشغيل التاكوغراف.*",
+    "answer": "• Hammer = work\n• Bed = rest\n• Circle مع dot = القيادة الوقت\n• Square مع diagonal line = availability\n\nاضبط صحيح activity فقط – avoid incorrect records.",
+    "imageLabel": ""
+  },
+  "K9F2": {
+    "title": "السؤال 2: بصري inspection من service الفرامل و الوقوف الفرامل.",
+    "answer": "• الفرامل discs: لا تشققات, breaks, أزرق discoloration, deep grooves; لا oily\n• تحقق من الفرامل lining status في حاسوب المركبة\n• الوقوف الفرامل: apply و تحقق من هو/هي holds\n• Combination cylinder: screw يجب لا يكون loosened/removed\n\nChecking brakes = your life insurance.",
+    "imageLabel": ""
+  },
+  "K9F3": {
+    "title": "السؤال 3: تحقق من قدرة/طاقة التوجيه fluid المستوى.",
+    "answer": "• تشغيل الشاحنة this هو لا checked manually\n• إذا المستوى هو جداً منخفض, تحذير رسالة تظهر تشغيل لوحة العدادات\n• You قد also notice إذا التوجيه becomes heavy\n\nFollow تحذير رسالة – لا’t تحقق من عند الخزان.",
+    "imageLabel": ""
+  },
+  "K9F4": {
+    "title": "السؤال 4: تحقق من tail الأضواء و خلف الخلوص الأضواء لـ الوظيفة.",
+    "answer": "• المدرب switches تشغيل الأضواء\n• المتدرب goes إلى خلف من الشاحنة\n• تحقق من يسار/يمين tail الأضواء\n• تحقق من خلف الخلوص الأضواء\n\nدائماً تحقق من خلف – كلا sides.",
+    "imageLabel": ""
+  },
+  "K9F5": {
+    "title": "السؤال 5: تحقق من windscreen غسالة/رشاش نظام و فوهة alignment.",
+    "answer": "• بدّل/شغّل الإشعال تشغيل, operate غسالة/رشاش\n• ماء from all nozzles هو distributed evenly\n• ماسحات لا smear; screen gets نظيف\n• Blocked فوهة: adjust/clear مع pin\n\nEven distribution = clear view.",
+    "imageLabel": ""
+  },
+  "K9F6": {
+    "title": "السؤال 6: حالة من windows و مرايا (cleanliness, ضرر).",
+    "answer": "• مرايا: أمّن, لا مفكوك, لا تالف, لا black dots, لا cloudy\n• الزجاج الأمامي: نظيف, لا تالف, لا stone chips في field من vision/camera area\n\nClear view = safe القيادة.",
+    "imageLabel": ""
+  },
+  "K10F1": {
+    "title": "السؤال 1: فحص قرص المخطط/الطباعة من التاكوغراف*",
+    "answer": ") كيف many km were driven?\nb) كيف long كان interruption من القيادة?\nc) After كيف many ساعات كان الأول break taken?\nd) What كان maximum speed / were أي speeding events documented?\n\n• Distance driven: 89 km\n• Interruption: 20 ساعات 26 minutes\n• الأول break: after 1 hour 47 minutes\n• Speeding: none documented\n\nRead values from طباعة – لا’t guess.",
+    "imageLabel": ""
+  },
+  "K10F2": {
+    "title": "السؤال 2: تحقق من أن مشوار الدواسة غير معاق.",
+    "answer": "• Look under pedals: لا objects (e.g., gloves, slippers, عبوات)\n• اضغط accelerator و الفرامل: حر/متاح movement, لا resistance\n• تحقق من الكابينة: لا مفكوك items/عبوات أن could roll forward\n\nحر/متاح pedals = safe control.",
+    "imageLabel": ""
+  },
+  "K10F3": {
+    "title": "السؤال 3: فحص بصري لنظام التعليق.",
+    "answer": "• Raise الشاحنة مع هواء نظام التعليق\n• هواء bellows: لا تشققات, cuts, bulges; لا مسامي; runs cleanly over cup\n• Cup يجب لا يكون heavily rusted\n• Show shock absorber: يجب لا leak زيت\n\nShock absorbers matter – often neglected.",
+    "imageLabel": ""
+  },
+  "K10F4": {
+    "title": "السؤال 4: سمِّ مصابيح المؤشرات أو فعِّل أنظمة التحكم واشرح بمثالين.",
+    "answer": "• الاسم اثنان مصابيح المؤشرات (e.g., الوقوف الفرامل red, مرتفع شعاع أزرق)\n• الاسم أنظمة التحكم: وقود gauge, الضغط gauges/manometers\n• إذا الفاحص shows unknown ضوء: refer إلى operating manual\n\nعند least اثنان examples – أن’s enough لـ الفاحص.",
+    "imageLabel": ""
+  },
+  "K10F5": {
+    "title": "السؤال 5: تحقق من مؤشر حالة نظام فلتر الهواء.",
+    "answer": "• Show فلتر الهواء تحذير ضوء\n• إذا ضوء stays تشغيل, فلتر الهواء هو clogged\n\nضوء تشغيل = filter blocked.",
+    "imageLabel": ""
+  },
+  "K10F6": {
+    "title": "السؤال 6: مصدّات العجلات (العدد، مكان التخزين).",
+    "answer": "• تحقق من stored في its holder\n• Quantity complete (مع 3 axles: 2 مصدّات)\n• مصدّات لا تالف, suitable لـ مقاس الإطار\n• تحقق من ice edges – يجب لا يكون تالف\n\nفقط complete, suitable مصدّات أمّن بشكل صحيح.",
+    "imageLabel": "مصدّات العجلات تشغيل الشاحنة – placed في holder"
+  }
+};
+
+
+
+
+const I18N = {
+  "de": {
+    "appTitle": "Abfahrtskontrolle LKW – Lerntrainer",
+    "appSubtitle": "Lernkarten, Quiz & Prüfungsmodus (mit optionalen Bildern pro Frage)",
+    "labelCard": "Karte:",
+    "allCards": "Alle Karten",
+    "cardX": "Karte {n}",
+    "modeCards": "Jetzt Karten lernen",
+    "modeQuiz": "Quiz (Zufallsfrage)",
+    "modeExam": "Prüfungsmodus",
+    "nextQuestion": "Nächste Frage",
+    "progress": "Fortschritt: {known} / {all} ({percent}%)",
+    "resetAll": "Reset: Fortschritt & Notizen löschen",
+    "modeCardsInfo": "Modus: <strong>Lernkarten</strong> – blättere durch alle Fragen, zeige dir die Antwort an und bewerte dich.",
+    "modeQuizInfo": "Modus: <strong>Quiz</strong> – es wird immer eine zufällige Frage aus dem aktuellen Kartenbereich angezeigt. Nach deiner Bewertung oder mit „Nächste Frage“ geht es weiter.",
+    "modeExamInfo": "Modus: <strong>Prüfungsmodus</strong> – alle Fragen im aktuellen Kartenbereich werden genau einmal abgefragt. Am Ende erhältst du eine Auswertung in Prozent.",
+    "metaLeft": "Karte {card} • Frage-ID: {id}",
+    "statusKnown": "Status: sitzt (Wusste ich)",
+    "statusUnknown": "Status: unsicher (Musste nachschauen)",
+    "statusOpen": "Status: noch offen",
+    "showAnswer": "Antwort anzeigen",
+    "hideAnswer": "Antwort ausblenden",
+    "knew": "Wusste ich ✅",
+    "notKnew": "Musste nachschauen ❌",
+    "notes": "Notizen:",
+    "notesExam": "Notizen (optional, wirkt sich nicht auf das Ergebnis aus):",
+    "notesPlaceholder": "Eigene Stichworte oder Beispiele ergänzen …",
+    "showImage": "Bild anzeigen",
+    "hideImage": "Bild ausblenden",
+    "examModeChip": "Prüfungsmodus",
+    "noExamQuestions": "Keine Fragen für den Prüfungsmodus gefunden. Bitte andere Karte wählen.",
+    "examFinished": "Prüfung beendet",
+    "examTotal": "Fragen insgesamt: {total}",
+    "examCorrect": "Davon „Wusste ich“: {correct}",
+    "examWrong": "Davon „Musste nachschauen“: {wrong}",
+    "examResult": "Ergebnis: {percent}% sicher beantwortet",
+    "examRestart": "Prüfung erneut starten",
+    "backToCards": "Zurück zu Lernkarten",
+    "examMeta": "Frage {idx} von {total} • Karte {card} • ID: {id}",
+    "confirmReset": "Willst du wirklich ALLE Lernfortschritte und Notizen löschen?",
+    "footerHtml": "Fortschritt &amp; Notizen werden lokal im Browser gespeichert (keine Cloud, keine Anmeldung).<br>\n    Bilder: einfach in <code>img/</code> legen, z.&nbsp;B. <code>img/fahrtenschreiber_vorfahrtantritt.jpg</code>, und bei der Frage <code>image</code> + <code>imageLabel</code> eintragen.",
+    "langBtn": "English"
+  },
+  "en": {
+    "appTitle": "Truck Pre-Trip Inspection – Study Trainer",
+    "appSubtitle": "Flashcards, quiz & exam mode (with optional images per question)",
+    "labelCard": "Card:",
+    "allCards": "All cards",
+    "cardX": "Card {n}",
+    "modeCards": "Study flashcards now",
+    "modeQuiz": "Quiz (random question)",
+    "modeExam": "Exam mode",
+    "nextQuestion": "Next question",
+    "progress": "Progress: {known} / {all} ({percent}%)",
+    "resetAll": "Reset: clear progress & notes",
+    "modeCardsInfo": "Mode: <strong>Flashcards</strong> – go through all questions, reveal the answer, and rate yourself.",
+    "modeQuizInfo": "Mode: <strong>Quiz</strong> – one random question from the current card range is shown. After your rating or with “Next question”, you continue.",
+    "modeExamInfo": "Mode: <strong>Exam</strong> – all questions in the current card range are asked exactly once. At the end you get a percentage score.",
+    "metaLeft": "Card {card} • Question ID: {id}",
+    "statusKnown": "Status: nailed it (I knew it)",
+    "statusUnknown": "Status: unsure (Had to look it up)",
+    "statusOpen": "Status: not rated yet",
+    "showAnswer": "Show answer",
+    "hideAnswer": "Hide answer",
+    "knew": "I knew it ✅",
+    "notKnew": "Had to look it up ❌",
+    "notes": "Notes:",
+    "notesExam": "Notes (optional, does not affect the result):",
+    "notesPlaceholder": "Add your own keywords or examples …",
+    "showImage": "Show image",
+    "hideImage": "Hide image",
+    "examModeChip": "Exam mode",
+    "noExamQuestions": "No questions found for exam mode. Please choose a different card.",
+    "examFinished": "Exam finished",
+    "examTotal": "Total questions: {total}",
+    "examCorrect": "“I knew it”: {correct}",
+    "examWrong": "“Had to look it up”: {wrong}",
+    "examResult": "Result: {percent}% answered confidently",
+    "examRestart": "Restart exam",
+    "backToCards": "Back to flashcards",
+    "examMeta": "Question {idx} of {total} • Card {card} • ID: {id}",
+    "confirmReset": "Do you really want to delete ALL progress and notes?",
+    "footerHtml": "Progress &amp; notes are stored locally in your browser (no cloud, no login).<br>\n    Images: put them in <code>img/</code>, e.g. <code>img/fahrtenschreiber_vorfahrtantritt.jpg</code>, and fill in <code>image</code> + <code>imageLabel</code> on the question.",
+    "langBtn": "Deutsch"
+  },
+  "ar": {
+    "appTitle": "مدرّب ADK",
+    "appSubtitle": "بطاقات تدريب، اختبار قصير ووضع الامتحان (مع صور اختيارية لكل سؤال)",
+    "labelCard": "بطاقة:",
+    "allCards": "جميع البطاقات",
+    "cardX": "بطاقة {n}",
+    "modeCards": "بطاقات",
+    "modeQuiz": "اختبار",
+    "modeExam": "وضع الامتحان",
+    "nextQuestion": "السؤال التالي",
+    "progress": "التقدّم: {known} / {all} ({percent}%)",
+    "resetAll": "إعادة ضبط: مسح التقدّم",
+    "modeCardsInfo": "بطاقات: استعرض الأسئلة/الأجوبة وقيّم نفسك.",
+    "modeQuizInfo": "اختبار: سؤال عشوائي—أظهر الإجابة ثم قيّم نفسك.",
+    "modeExamInfo": "وضع الامتحان: مثل الاختبار لكن مع تقييم نهائي.",
+    "metaLeft": "بطاقة {card} • {id}",
+    "statusKnown": "الحالة: أعرفها ✅",
+    "statusNotKnew": "الحالة: احتجت للرجوع ❌",
+    "statusOpen": "الحالة: لم تُقيَّم بعد",
+    "showAnswer": "إظهار الإجابة",
+    "hideAnswer": "إخفاء الإجابة",
+    "knew": "عرفتها ✅",
+    "notKnew": "احتجت للرجوع ❌",
+    "notes": "ملاحظات",
+    "notesPlaceholder": "اكتب ملاحظاتك هنا… (تُحفظ على الجهاز)",
+    "showImage": "إظهار الصورة",
+    "hideImage": "إخفاء الصورة",
+    "examModeChip": "وضع الامتحان",
+    "noExamQuestions": "لا توجد أسئلة لهذا الاختيار.",
+    "examFinished": "انتهى الامتحان",
+    "examTotal": "إجمالي الأسئلة: {n}",
+    "examCorrect": "صحيح: {n}",
+    "examWrong": "خطأ: {n}",
+    "examResult": "النتيجة: {percent}%",
+    "examRestart": "إعادة الامتحان",
+    "backToCards": "العودة إلى البطاقات",
+    "examMeta": "السؤال {idx} / {total}",
+    "confirmReset": "هل تريد حقًا مسح كل التقدّم والتقييمات؟",
+    "footerHtml": "نصيحة: احفظ الملف محليًا. الصور ضعها داخل <code>img/</code> ثم اربطها في السؤال عبر <code>image</code>.",
+    "langBtn": "اللغة"
+  }
+};
+
+
+
 const STORAGE_KEY_PROGRESS = "abfahrtskontrolle_progress_v1";
 const STORAGE_KEY_NOTES = "abfahrtskontrolle_notes_v1";
+const STORAGE_KEY_LANG = "abfahrtskontrolle_lang_v1";
+
+let lang = localStorage.getItem(STORAGE_KEY_LANG) || "de";
+if (!I18N[lang]) lang = "de";
 
 let progress = {};
 let notes = {};
@@ -983,6 +1703,15 @@ const resetAllBtn = document.getElementById("resetAll");
 const modeCardsBtn = document.getElementById("modeCardsBtn");
 const modeQuizBtn = document.getElementById("modeQuizBtn");
 const modeExamBtn = document.getElementById("modeExamBtn");
+const langDeBtn = document.getElementById("langDeBtn");
+const langEnBtn = document.getElementById("langEnBtn");
+const langArBtn = document.getElementById("langArBtn");
+
+const appTitleEl = document.getElementById("appTitle");
+const appSubtitleEl = document.getElementById("appSubtitle");
+const labelCardEl = document.getElementById("labelCard");
+const optAllCardsEl = document.getElementById("optAllCards");
+const footerHintEl = document.getElementById("footerHint");
 
 let currentMode = "cards";
 let examQuestions = [];
@@ -991,12 +1720,86 @@ let examCorrect = 0;
 let examWrong = 0;
 let examActive = false;
 
-const maxCard = Math.max(...QUESTIONS.map(q => q.card));
-for (let c = 1; c <= maxCard; c++) {
-  const opt = document.createElement("option");
-  opt.value = String(c);
-  opt.textContent = "Karte " + c;
-  cardFilterEl.appendChild(opt);
+function format(template, vars) {
+  return template.replace(/\{(\w+)\}/g, (_, k) => (vars[k] !== undefined ? String(vars[k]) : ""));
+}
+
+function t(key, vars={}) {
+  const template = (I18N[lang] && I18N[lang][key]) ? I18N[lang][key] : key;
+  return format(template, vars);
+}
+
+function getQText(q, field) {
+  if (lang === "de") return q[field];
+  if (lang === "en") {
+    const en = QUESTIONS_EN[q.id];
+    if (en && en[field]) return en[field];
+    return q[field];
+  }
+  if (lang === "ar") {
+    const ar = QUESTIONS_AR[q.id];
+    if (ar && ar[field]) return ar[field];
+    // fallback to English if Arabic missing
+    const en = QUESTIONS_EN[q.id];
+    if (en && en[field]) return en[field];
+    return q[field];
+  }
+  return q[field];
+}
+
+function setLang(next) {
+  lang = next;
+  localStorage.setItem(STORAGE_KEY_LANG, lang);
+
+  // RTL for Arabic
+  if (lang === "ar") {
+    document.documentElement.setAttribute("dir", "rtl");
+    document.documentElement.setAttribute("lang", "ar");
+  } else {
+    document.documentElement.setAttribute("dir", "ltr");
+    document.documentElement.setAttribute("lang", lang);
+  }
+
+  updateStaticTexts();
+
+  // Rerender everything so buttons/status texts switch too
+  if (currentMode === "exam") {
+    renderExamView();
+  } else {
+    renderQuestions();
+  }
+  updateProgressDisplay();
+}
+
+function updateStaticTexts() {
+  // Head
+  document.title = t("appTitle");
+  appTitleEl.textContent = t("appTitle");
+  appSubtitleEl.textContent = t("appSubtitle");
+
+  // Controls
+  labelCardEl.textContent = t("labelCard");
+  optAllCardsEl.textContent = t("allCards");
+
+  modeCardsBtn.textContent = t("modeCards");
+  modeQuizBtn.textContent = t("modeQuiz");
+  modeExamBtn.textContent = t("modeExam");
+  nextInQuizBtn.textContent = t("nextQuestion");
+  resetAllBtn.textContent = t("resetAll");
+  footerHintEl.innerHTML = t("footerHtml");
+
+  updateLangButtons();
+
+  // Update card options (Karte X)
+  const maxCard = Math.max(...QUESTIONS.map(q => q.card));
+  const existing = Array.from(cardFilterEl.querySelectorAll("option")).filter(o => o.value !== "all");
+  existing.forEach(o => o.remove());
+  for (let c = 1; c <= maxCard; c++) {
+    const opt = document.createElement("option");
+    opt.value = String(c);
+    opt.textContent = t("cardX", {n: c});
+    cardFilterEl.appendChild(opt);
+  }
 }
 
 function saveProgress() {
@@ -1018,7 +1821,7 @@ function updateProgressDisplay() {
   const knownCount = QUESTIONS.filter(q => progress[q.id]?.last === "known").length;
   const percent = all ? Math.round(knownCount / all * 100) : 0;
   progressFillEl.style.width = percent + "%";
-  progressTextEl.textContent = `Fortschritt: ${knownCount} / ${all} (${percent}%)`;
+  progressTextEl.textContent = t("progress", {known: knownCount, all, percent});
 }
 
 function addImageSupport(cardElement, q) {
@@ -1029,8 +1832,16 @@ function addImageSupport(cardElement, q) {
 
   const img = document.createElement("img");
   img.src = q.image;
-  img.alt = "Abbildung zur Frage";
+  img.alt = getQText(q, "imageLabel") || (lang === "de" ? "Abbildung zur Frage" : "Illustration for the question");
   imgWrapper.appendChild(img);
+
+  const label = getQText(q, "imageLabel");
+  if (label) {
+    const cap = document.createElement("div");
+    cap.className = "image-caption";
+    cap.textContent = label;
+    imgWrapper.appendChild(cap);
+  }
 
   cardElement.appendChild(imgWrapper);
   return imgWrapper;
@@ -1061,7 +1872,7 @@ function renderQuestions() {
     meta.className = "question-meta";
 
     const left = document.createElement("div");
-    left.textContent = `Karte ${q.card} • Frage-ID: ${q.id}`;
+    left.textContent = t("metaLeft", {card: q.card, id: q.id});
 
     const right = document.createElement("div");
     const prog = progress[q.id];
@@ -1069,12 +1880,12 @@ function renderQuestions() {
     chip.className = "chip small";
     if (prog?.last === "known") {
       chip.classList.add("known");
-      chip.textContent = "Status: sitzt (Wusste ich)";
+      chip.textContent = t("statusKnown");
     } else if (prog?.last === "unknown") {
       chip.classList.add("unknown");
-      chip.textContent = "Status: unsicher (Musste nachschauen)";
+      chip.textContent = t("statusUnknown");
     } else {
-      chip.textContent = "Status: noch offen";
+      chip.textContent = t("statusOpen");
     }
     right.appendChild(chip);
 
@@ -1083,30 +1894,30 @@ function renderQuestions() {
 
     const title = document.createElement("div");
     title.className = "question-title";
-    title.textContent = q.title;
+    title.textContent = getQText(q, "title");
 
     const answer = document.createElement("div");
     answer.className = "answer hidden";
-    answer.textContent = q.answer;
+    answer.textContent = getQText(q, "answer");
 
     const buttons = document.createElement("div");
     buttons.className = "card-buttons";
 
     const showBtn = document.createElement("button");
-    showBtn.textContent = "Antwort anzeigen";
+    showBtn.textContent = t("showAnswer");
     showBtn.addEventListener("click", () => {
       const hidden = answer.classList.contains("hidden");
       if (hidden) {
         answer.classList.remove("hidden");
-        showBtn.textContent = "Antwort ausblenden";
+        showBtn.textContent = t("hideAnswer");
       } else {
         answer.classList.add("hidden");
-        showBtn.textContent = "Antwort anzeigen";
+        showBtn.textContent = t("showAnswer");
       }
     });
 
     const knewBtn = document.createElement("button");
-    knewBtn.textContent = "Wusste ich ✅";
+    knewBtn.textContent = t("knew");
     knewBtn.className = "primary";
     knewBtn.addEventListener("click", () => {
       const p = progress[q.id] || { correct: 0, wrong: 0 };
@@ -1117,11 +1928,13 @@ function renderQuestions() {
       updateProgressDisplay();
       if (currentMode === "quiz") {
         renderQuestions();
+      } else {
+        renderQuestions();
       }
     });
 
     const notKnewBtn = document.createElement("button");
-    notKnewBtn.textContent = "Musste nachschauen ❌";
+    notKnewBtn.textContent = t("notKnew");
     notKnewBtn.addEventListener("click", () => {
       const p = progress[q.id] || { correct: 0, wrong: 0 };
       p.wrong++;
@@ -1130,6 +1943,8 @@ function renderQuestions() {
       saveProgress();
       updateProgressDisplay();
       if (currentMode === "quiz") {
+        renderQuestions();
+      } else {
         renderQuestions();
       }
     });
@@ -1141,22 +1956,22 @@ function renderQuestions() {
     const imgWrapper = addImageSupport(card, q);
     if (imgWrapper) {
       const imgBtn = document.createElement("button");
-      imgBtn.textContent = "Bild anzeigen";
+      imgBtn.textContent = t("showImage");
       imgBtn.addEventListener("click", () => {
         const isHidden = imgWrapper.style.display === "none" || imgWrapper.style.display === "";
         imgWrapper.style.display = isHidden ? "block" : "none";
-        imgBtn.textContent = isHidden ? "Bild ausblenden" : "Bild anzeigen";
+        imgBtn.textContent = isHidden ? t("hideImage") : t("showImage");
       });
       buttons.appendChild(imgBtn);
     }
 
     const noteLabel = document.createElement("div");
     noteLabel.className = "note-label";
-    noteLabel.textContent = "Notizen:";
+    noteLabel.textContent = t("notes");
 
     const noteArea = document.createElement("textarea");
     noteArea.value = notes[q.id] || "";
-    noteArea.placeholder = "Eigene Stichworte oder Beispiele ergänzen …";
+    noteArea.placeholder = t("notesPlaceholder");
     noteArea.addEventListener("change", () => {
       notes[q.id] = noteArea.value;
       saveNotes();
@@ -1200,7 +2015,7 @@ function renderExamView() {
   if (!examActive || examQuestions.length === 0) {
     const info = document.createElement("div");
     info.className = "question-card";
-    info.textContent = "Keine Fragen für den Prüfungsmodus gefunden. Bitte andere Karte wählen.";
+    info.textContent = t("noExamQuestions");
     cardListEl.appendChild(info);
     return;
   }
@@ -1214,35 +2029,35 @@ function renderExamView() {
 
     const title = document.createElement("div");
     title.className = "exam-summary-title";
-    title.textContent = "Prüfung beendet";
+    title.textContent = t("examFinished");
 
     const line1 = document.createElement("div");
     line1.className = "exam-summary-line";
-    line1.textContent = `Fragen insgesamt: ${total}`;
+    line1.textContent = t("examTotal", {total});
 
     const line2 = document.createElement("div");
     line2.className = "exam-summary-line";
-    line2.textContent = `Davon „Wusste ich“: ${examCorrect}`;
+    line2.textContent = t("examCorrect", {correct: examCorrect});
 
     const line3 = document.createElement("div");
     line3.className = "exam-summary-line";
-    line3.textContent = `Davon „Musste nachschauen“: ${examWrong}`;
+    line3.textContent = t("examWrong", {wrong: examWrong});
 
     const line4 = document.createElement("div");
     line4.className = "exam-summary-line";
-    line4.textContent = `Ergebnis: ${percent}% sicher beantwortet`;
+    line4.textContent = t("examResult", {percent});
 
     const buttons = document.createElement("div");
     buttons.className = "card-buttons";
     const restartBtn = document.createElement("button");
     restartBtn.className = "primary";
-    restartBtn.textContent = "Prüfung erneut starten";
+    restartBtn.textContent = t("examRestart");
     restartBtn.addEventListener("click", () => {
       startExam();
     });
 
     const backToCardsBtn = document.createElement("button");
-    backToCardsBtn.textContent = "Zurück zu Lernkarten";
+    backToCardsBtn.textContent = t("backToCards");
     backToCardsBtn.addEventListener("click", () => {
       setMode("cards");
     });
@@ -1271,12 +2086,12 @@ function renderExamView() {
   meta.className = "question-meta";
 
   const left = document.createElement("div");
-  left.textContent = `Frage ${examIndex + 1} von ${examQuestions.length} • Karte ${q.card} • ID: ${q.id}`;
+  left.textContent = t("examMeta", {idx: examIndex + 1, total: examQuestions.length, card: q.card, id: q.id});
 
   const right = document.createElement("div");
   const chip = document.createElement("span");
   chip.className = "chip small";
-  chip.textContent = "Prüfungsmodus";
+  chip.textContent = t("examModeChip");
   right.appendChild(chip);
 
   meta.appendChild(left);
@@ -1284,30 +2099,30 @@ function renderExamView() {
 
   const title = document.createElement("div");
   title.className = "question-title";
-  title.textContent = q.title;
+  title.textContent = getQText(q, "title");
 
   const answer = document.createElement("div");
   answer.className = "answer hidden";
-  answer.textContent = q.answer;
+  answer.textContent = getQText(q, "answer");
 
   const buttons = document.createElement("div");
   buttons.className = "card-buttons";
 
   const showBtn = document.createElement("button");
-  showBtn.textContent = "Antwort anzeigen";
+  showBtn.textContent = t("showAnswer");
   showBtn.addEventListener("click", () => {
     const hidden = answer.classList.contains("hidden");
     if (hidden) {
       answer.classList.remove("hidden");
-      showBtn.textContent = "Antwort ausblenden";
+      showBtn.textContent = t("hideAnswer");
     } else {
       answer.classList.add("hidden");
-      showBtn.textContent = "Antwort anzeigen";
+      showBtn.textContent = t("showAnswer");
     }
   });
 
   const knewBtn = document.createElement("button");
-  knewBtn.textContent = "Wusste ich ✅";
+  knewBtn.textContent = t("knew");
   knewBtn.className = "primary";
   knewBtn.addEventListener("click", () => {
     const p = progress[q.id] || { correct: 0, wrong: 0 };
@@ -1322,7 +2137,7 @@ function renderExamView() {
   });
 
   const notKnewBtn = document.createElement("button");
-  notKnewBtn.textContent = "Musste nachschauen ❌";
+  notKnewBtn.textContent = t("notKnew");
   notKnewBtn.addEventListener("click", () => {
     const p = progress[q.id] || { correct: 0, wrong: 0 };
     p.wrong++;
@@ -1342,22 +2157,22 @@ function renderExamView() {
   const imgWrapper = addImageSupport(card, q);
   if (imgWrapper) {
     const imgBtn = document.createElement("button");
-    imgBtn.textContent = "Bild anzeigen";
+    imgBtn.textContent = t("showImage");
     imgBtn.addEventListener("click", () => {
       const isHidden = imgWrapper.style.display === "none" || imgWrapper.style.display === "";
       imgWrapper.style.display = isHidden ? "block" : "none";
-      imgBtn.textContent = isHidden ? "Bild ausblenden" : "Bild anzeigen";
+      imgBtn.textContent = isHidden ? t("hideImage") : t("showImage");
     });
     buttons.appendChild(imgBtn);
   }
 
   const noteLabel = document.createElement("div");
   noteLabel.className = "note-label";
-  noteLabel.textContent = "Notizen (optional, wirkt sich nicht auf das Ergebnis aus):";
+  noteLabel.textContent = t("notesExam");
 
   const noteArea = document.createElement("textarea");
   noteArea.value = notes[q.id] || "";
-  noteArea.placeholder = "Eigene Stichworte oder Beispiele ergänzen …";
+  noteArea.placeholder = t("notesPlaceholder");
   noteArea.addEventListener("change", () => {
     notes[q.id] = noteArea.value;
     saveNotes();
@@ -1385,16 +2200,16 @@ function setMode(mode) {
 
   if (mode === "cards") {
     modeCardsBtn.classList.add("primary");
-    modeInfoEl.innerHTML = "Modus: <strong>Lernkarten</strong> – blättere durch alle Fragen, zeige dir die Antwort an und bewerte dich.";
+    modeInfoEl.innerHTML = t("modeCardsInfo");
     renderQuestions();
   } else if (mode === "quiz") {
     modeQuizBtn.classList.add("primary");
     nextInQuizBtn.style.display = "inline-block";
-    modeInfoEl.innerHTML = "Modus: <strong>Quiz</strong> – es wird immer eine zufällige Frage aus dem aktuellen Kartenbereich angezeigt. Nach deiner Bewertung oder mit „Nächste Frage“ geht es weiter.";
+    modeInfoEl.innerHTML = t("modeQuizInfo");
     renderQuestions();
   } else if (mode === "exam") {
     modeExamBtn.classList.add("primary");
-    modeInfoEl.innerHTML = "Modus: <strong>Prüfungsmodus</strong> – alle Fragen im aktuellen Kartenbereich werden genau einmal abgefragt. Am Ende erhältst du eine Auswertung in Prozent.";
+    modeInfoEl.innerHTML = t("modeExamInfo");
     startExam();
   }
 }
@@ -1418,7 +2233,7 @@ cardFilterEl.addEventListener("change", () => {
 });
 
 resetAllBtn.addEventListener("click", () => {
-  const sure = confirm("Willst du wirklich ALLE Lernfortschritte und Notizen löschen?");
+  const sure = confirm(t("confirmReset"));
   if (!sure) return;
 
   progress = {};
@@ -1436,6 +2251,21 @@ resetAllBtn.addEventListener("click", () => {
   renderQuestions();
 });
 
+
+function updateLangButtons() {
+  if (!langDeBtn) return;
+  langDeBtn.classList.toggle("active", lang === "de");
+  langEnBtn.classList.toggle("active", lang === "en");
+  langArBtn.classList.toggle("active", lang === "ar");
+}
+
+langDeBtn?.addEventListener("click", () => setLang("de"));
+langEnBtn?.addEventListener("click", () => setLang("en"));
+langArBtn?.addEventListener("click", () => setLang("ar"));
+
+// Init
+updateStaticTexts();
+setLang(lang); // applies + renders
 setMode("cards");
 </script>
 </body>
